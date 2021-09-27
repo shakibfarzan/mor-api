@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
 const { musicianSchema } = require('./musician');
 
 const artistSchema = new mongoose.Schema({
@@ -17,8 +18,8 @@ const artistSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    imageUrl: {
-        type: String,
+    images: {
+        type: [String],
         required: true
     },
     line_up: [musicianSchema],
@@ -29,19 +30,14 @@ const artistSchema = new mongoose.Schema({
 
 })
 
-artistSchema.methods.discography = async function () {
-    return await mongoose.model('Song').find({ 'artist._id': this._id });
-}
-
 const Artist = mongoose.model('Artist', artistSchema);
 
 function validateArtist(artist) {
     const schema = Joi.object({
-        name: Joi.string().min(2).max(255).required(),
+        name: Joi.string().min(2).max(255),
         epithet: Joi.string().max(50),
-        biography: Joi.string().required(),
-        imageUrl: Joi.string().required(),
-        line_up: Joi.array().items(Joi.string().required()),
+        biography: Joi.string(),
+        line_up: Joi.array().items(Joi.objectId().required()),
         personal_influences: Joi.string(),
         essential_stylistic_features: Joi.string(),
         harmonic_material: Joi.string(),

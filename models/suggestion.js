@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
 const { personSchema } = require('./person')
 
 const suggestionSchema = new mongoose.Schema({
@@ -39,7 +40,7 @@ const Suggestion = mongoose.model('Suggestion', suggestionSchema);
 
 function validateSuggestion(suggestion) {
     const schema = Joi.object({
-        userId: Joi.string().required(),
+        userId: Joi.objectId().required(),
         artistName: Joi.string().min(2).max(255).required(),
         link: Joi.string(),
         description: Joi.string(),

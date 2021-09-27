@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
 const { personSchema } = require('./person')
-const {instrumentSchema} = require('./instrument')
+const { instrumentSchema } = require('./instrument')
 
 const musicianSchema = new mongoose.Schema({
     name: {
@@ -15,9 +16,11 @@ const Musician = mongoose.model('Musician', musicianSchema);
 
 function musicianValidate(musician) {
     const schema = Joi.object({
-        nameId: Joi.string().required(),
-        instruments: Joi.array().items(Joi.string())
+        nameId: Joi.objectId().required(),
+        instruments: Joi.array().items(Joi.objectId())
     })
+
+    return schema.validate(musician)
 }
 
 exports.musicianSchema = musicianSchema;

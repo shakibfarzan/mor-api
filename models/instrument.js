@@ -15,6 +15,8 @@ function validateInstrument(instrument) {
     const schema = Joi.object({
         name: Joi.string().max(50).required()
     })
+
+    return schema.validate(instrument)
 }
 
 exports.instrumentSchema = instrumentSchema;

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
 const config = require('config');
 
 const albumSchema = new mongoose.Schema({
@@ -7,7 +8,6 @@ const albumSchema = new mongoose.Schema({
         type: String,
         minlength: 2,
         maxlength: 50,
-        required: true,
         default: config.get('single-track')
     },
     artist: {
@@ -30,18 +30,13 @@ const albumSchema = new mongoose.Schema({
     cover: String,
 })
 
-albumSchema.methods.findSongs = async function () {
-    return await mongoose.model('Song').find({ 'album._id': this._id });
-}
-
 const Album = mongoose.model('Album', albumSchema);
 
 function validateAlbum(album) {
     const schema = Joi.object({
-        name: Joi.string().min(2).max(50).required(),
-        artistId: Joi.string().required(),
+        name: Joi.string().min(2).max(50),
+        artistId: Joi.objectId().required(),
         year: Joi.number().min(1700).max(new Date().getFullYear()),
-        cover: Joi.string()
     })
     return schema.validate(album)
 }

@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -14,13 +15,28 @@ mongoose.connect(db, { useNewUrlParser: true })
 
 const app = express();
 
+const genres = require('./routes/genres')
+const instruments = require('./routes/instruments')
+const persons = require('./routes/persons')
+const musicians = require('./routes/musicians')
+const artists = require('./routes/artists')
+const albums = require('./routes/albums')
+const songs = require('./routes/songs')
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(fileUpload());
 
-
+app.use('/api/genres', genres)
+app.use('/api/instruments', instruments)
+app.use('/api/persons', persons)
+app.use('/api/musicians', musicians)
+app.use('/api/artists', artists)
+app.use('/api/albums', albums)
+app.use('/api/songs', songs)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

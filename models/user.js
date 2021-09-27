@@ -1,4 +1,5 @@
-const Joi = require('joi');
+const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose');
 const { personSchema } = require('./person')
@@ -54,13 +55,12 @@ const User = mongoose.model('User', userSchema);
 
 function validateUser(user) {
     const schema = Joi.object({
-        personId: Joi.string().required(),
+        personId: Joi.objectId().required(),
         email: Joi.string().min(5).max(255).required().email(),
         username: Joi.string().lowercase().min(5).max(30).required(),
         password: Joi.string().min(8).max(255).required(),
         isAdmin: Joi.boolean(),
-        favorite_songs: Joi.array().items(Joi.string()),
-        avatar: Joi.string()
+        favorite_songs: Joi.array().items(Joi.objectId()),
     })
 
     return schema.validate(user)

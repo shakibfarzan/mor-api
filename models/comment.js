@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
 
 const commentSchema = new mongoose.Schema({
     user: {
@@ -43,8 +44,8 @@ const Comment = mongoose.model('Comment', commentSchema);
 
 function validateComment(comment) {
     const schema = Joi.object({
-        userId: Joi.string().required(),
-        songId: Joi.string().required(),
+        userId: Joi.objectId().required(),
+        songId: Joi.objectId().required(),
         body: Joi.string().max(4096).required(),
         dateSent: Joi.date()
     })

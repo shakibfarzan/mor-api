@@ -16,6 +16,7 @@ const personSchema = new mongoose.Schema({
     },
     nickname: {
         type: String,
+        minlength: 2,
         maxlength: 50
     }
 })
