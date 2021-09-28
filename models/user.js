@@ -3,6 +3,7 @@ Joi.objectId = require('joi-objectid')(Joi)
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose');
 const { personSchema } = require('./person')
+const config = require('config');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -30,8 +31,10 @@ const userSchema = new mongoose.Schema({
         maxlength: 255,
         required: true,
     },
-    isAdmin: Boolean,
-    favorite_songs: [String],
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
     avatar: String
 })
 
@@ -43,8 +46,6 @@ userSchema.methods.generateAuthToken = function () {
             username: this.username,
             email: this.email,
             isAdmin: this.isAdmin,
-            favorite_songs: this.favorite_songs,
-            avatar: this.avatar
         },
         config.get("jwtPrivateKey")
     );
@@ -55,12 +56,10 @@ const User = mongoose.model('User', userSchema);
 
 function validateUser(user) {
     const schema = Joi.object({
-        personId: Joi.objectId().required(),
+        nameId: Joi.objectId().required(),
         email: Joi.string().min(5).max(255).required().email(),
-        username: Joi.string().lowercase().min(5).max(30).required(),
+        username: Joi.string().min(5).max(30).required(),
         password: Joi.string().min(8).max(255).required(),
-        isAdmin: Joi.boolean(),
-        favorite_songs: Joi.array().items(Joi.objectId()),
     })
 
     return schema.validate(user)

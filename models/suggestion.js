@@ -10,10 +10,10 @@ const suggestionSchema = new mongoose.Schema({
                 type: personSchema,
                 required: true
             },
-            email: {
+            username: {
                 type: String,
                 minlength: 5,
-                maxlength: 255,
+                maxlength: 30,
                 required: true
             }
         }),
