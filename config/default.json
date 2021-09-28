@@ -1,6 +1,5 @@
 {
     "db": "mongodb://localhost/masters-of-rock",
-    "single-track": "Single Track",
     "jwtPrivateKey": "",
     "requiresAuth": false
 }

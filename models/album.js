@@ -8,7 +8,7 @@ const albumSchema = new mongoose.Schema({
         type: String,
         minlength: 2,
         maxlength: 50,
-        default: config.get('single-track')
+        required: true
     },
     artist: {
         type: new mongoose.Schema({
@@ -34,7 +34,7 @@ const Album = mongoose.model('Album', albumSchema);
 
 function validateAlbum(album) {
     const schema = Joi.object({
-        name: Joi.string().min(2).max(50),
+        name: Joi.string().min(2).max(50).required(),
         artistId: Joi.objectId().required(),
         year: Joi.number().min(1700).max(new Date().getFullYear()),
     })

@@ -36,18 +36,20 @@ router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) =
 
     const url = fileIO.save(file, dest, dbPath).pop()
 
-    const { name, type, dateUploaded, likes, artistId, albumId, genreId } = req.body
+    const { name, type, dateUploaded, likes, artistId, albumId, genreId, isSingleTrack } = req.body
 
     const artist = await Artist.findById(artistId).select('name')
     if (!artist) return res.status(400).send('Invalid artist ID!')
 
-    const album = await Album.findById(albumId).select('-artist')
-    if (!album) return res.status(400).send('Invalid album ID!')
+    if (albumId) {
+        const album = await Album.findById(albumId).select('-artist')
+        if (!album) return res.status(400).send('Invalid album ID!')
+    }
 
     const genre = await Genre.findById(genreId).select('name')
     if (!genre) return res.status(400).send('Invalid genre ID!')
 
-    let song = new Song({ name, artist, album, genre, url, type, dateUploaded, likes })
+    let song = new Song({ name, artist, album, genre, url, type, dateUploaded, likes, isSingleTrack })
     song = await song.save()
     res.send(song)
 })
@@ -65,13 +67,16 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
 
     const url = fileIO.save(file, dest, dbPath).pop()
 
-    const { name, type, dateUploaded, likes, artistId, albumId, genreId } = req.body
+    const { name, type, dateUploaded, likes, artistId, albumId, genreId, isSingleTrack } = req.body
 
     const artist = await Artist.findById(artistId).select('name')
     if (!artist) return res.status(400).send('Invalid artist ID!')
 
-    const album = await Album.findById(albumId).select('-artist')
-    if (!album) return res.status(400).send('Invalid album ID!')
+    let album = {}
+    if (albumId) {
+        album = await Album.findById(albumId).select('-artist')
+        if (!album) return res.status(400).send('Invalid album ID!')
+    }
 
     const genre = await Genre.findById(genreId).select('name')
     if (!genre) return res.status(400).send('Invalid genre ID!')
@@ -84,6 +89,7 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     song.type = type
     song.dateUploaded = dateUploaded
     song.likes = likes
+    song.isSingleTrack = isSingleTrack
 
     song = await song.save()
     res.send(song)

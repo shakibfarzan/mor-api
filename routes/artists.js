@@ -3,12 +3,15 @@ const router = express.Router()
 const mongoose = require('mongoose');
 const { Artist, validate } = require('../models/artist');
 const { Musician } = require('../models/musician');
+const { Song } = require('../models/song')
+const { Album } = require('../models/album')
 const auth = require('../middlewares/auth')
 const admin = require('../middlewares/admin')
 const validateObjectId = require('../middlewares/validateObjectId')
 const validateMiddleWare = require('../middlewares/validateMiddleWare')
 const fileIO = require('../utils/fileIO')
 const fileValidator = require('../utils/fileValidator')
+const config = require('config');
 
 const dest = 'public/images/artists/'
 const dbPath = 'images/artists'
@@ -26,8 +29,16 @@ router.get('/:id', validateObjectId, async (req, res) => {
     res.send(artist)
 })
 
-router.get('/discography/:id', async (req, res) => {
-    res.send("Discography")
+router.get('/discography/:id', validateObjectId, async (req, res) => {
+    const discography = { albums: [], single_tracks: [] }
+
+    const single_tracks = await Song.find({ "artist._id": req.params.id, isSingleTrack: true })
+    const albums = await Album.find({ "artist._id": req.params.id }).select('-artist')
+
+    discography.albums = albums
+    discography.single_tracks = single_tracks
+
+    res.send(discography)
 })
 
 router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) => {

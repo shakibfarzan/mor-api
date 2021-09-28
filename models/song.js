@@ -34,7 +34,6 @@ const songSchema = new mongoose.Schema({
             },
             cover: String,
         }),
-        required: true
     },
     genre: {
         type: new mongoose.Schema({
@@ -63,6 +62,10 @@ const songSchema = new mongoose.Schema({
     likes: {
         type: Number,
         default: 0,
+    },
+    isSingleTrack: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -72,11 +75,12 @@ function validateSong(song) {
     const schema = Joi.object({
         name: Joi.string().max(50).required(),
         artistId: Joi.objectId().required(),
-        albumId: Joi.objectId().required(),
+        albumId: Joi.objectId(),
         genreId: Joi.objectId().required(),
         type: Joi.string().valid('OriginalSong', 'BackingTrack', 'JamTrack').required(),
         dateUploaded: Joi.date(),
-        likes: Joi.number()
+        likes: Joi.number(),
+        isSingleTrack: Joi.boolean()
     })
     return schema.validate(song)
 }

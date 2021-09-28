@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router()
 const { Album, validate } = require('../models/album');
 const { Artist } = require('../models/artist');
+const { Song } = require('../models/song')
 const auth = require('../middlewares/auth')
 const admin = require('../middlewares/admin')
 const validateObjectId = require('../middlewares/validateObjectId')
@@ -25,8 +26,11 @@ router.get('/:id', validateObjectId, async (req, res) => {
     res.send(album)
 })
 
-router.get('/songs/:id', async (req, res) => {
-    res.send("Songs")
+router.get('/songs/:id', validateObjectId, async (req, res) => {
+
+    const songs = await Song.find({ "album._id": req.params.id }).select('-album')
+
+    res.send(songs)
 })
 
 router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) => {
