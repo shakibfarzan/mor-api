@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { musicianSchema } = require('./musician')
 const Joi = require('joi')
 Joi.objectId = require('joi-objectid')(Joi)
 
@@ -66,7 +67,8 @@ const songSchema = new mongoose.Schema({
     isSingleTrack: {
         type: Boolean,
         default: false
-    }
+    },
+    featuring: [musicianSchema]
 })
 
 const Song = mongoose.model('Song', songSchema);
@@ -80,7 +82,8 @@ function validateSong(song) {
         type: Joi.string().valid('OriginalSong', 'BackingTrack', 'JamTrack').required(),
         dateUploaded: Joi.date(),
         likes: Joi.number(),
-        isSingleTrack: Joi.boolean()
+        isSingleTrack: Joi.boolean(),
+        featuring: Joi.array().items(Joi.objectId().required())
     })
     return schema.validate(song)
 }

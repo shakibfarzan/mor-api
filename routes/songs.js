@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router()
+const mongoose = require('mongoose');
 const { Song, validate } = require('../models/song');
 const { Artist } = require('../models/artist');
 const { Album } = require('../models/album')
 const { Genre } = require('../models/genre')
+const { Musician } = require('../models/musician')
 const auth = require('../middlewares/auth')
 const admin = require('../middlewares/admin')
 const validateObjectId = require('../middlewares/validateObjectId')
@@ -36,20 +38,28 @@ router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) =
 
     const url = fileIO.save(file, dest, dbPath).pop()
 
-    const { name, type, dateUploaded, likes, artistId, albumId, genreId, isSingleTrack } = req.body
+    const { name, type, dateUploaded, likes, artistId, albumId, genreId, isSingleTrack, featuring } = req.body
+
 
     const artist = await Artist.findById(artistId).select('name')
     if (!artist) return res.status(400).send('Invalid artist ID!')
 
+    let album = {}
     if (albumId) {
-        const album = await Album.findById(albumId).select('-artist')
+        album = await Album.findById(albumId).select('-artist')
         if (!album) return res.status(400).send('Invalid album ID!')
     }
 
     const genre = await Genre.findById(genreId).select('name')
     if (!genre) return res.status(400).send('Invalid genre ID!')
 
-    let song = new Song({ name, artist, album, genre, url, type, dateUploaded, likes, isSingleTrack })
+    let featuringBody = []
+    if (featuring) {
+        const featuringIds = featuring.map(f => mongoose.Types.ObjectId(f))
+        featuringBody = await Musician.find({ "_id": { $in: featuringIds } })
+    }
+
+    let song = new Song({ name, artist, album, genre, url, type, dateUploaded, likes, isSingleTrack, featuring: featuringBody })
     song = await song.save()
     res.send(song)
 })
@@ -67,10 +77,11 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
 
     const url = fileIO.save(file, dest, dbPath).pop()
 
-    const { name, type, dateUploaded, likes, artistId, albumId, genreId, isSingleTrack } = req.body
+    let { name, type, dateUploaded, likes, artistId, albumId, genreId, isSingleTrack, featuring } = req.body
 
     const artist = await Artist.findById(artistId).select('name')
     if (!artist) return res.status(400).send('Invalid artist ID!')
+
 
     let album = {}
     if (albumId) {
@@ -81,15 +92,22 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     const genre = await Genre.findById(genreId).select('name')
     if (!genre) return res.status(400).send('Invalid genre ID!')
 
+    let featuringBody = []
+    if (featuring) {
+        const featuringIds = featuring.map(f => mongoose.Types.ObjectId(f))
+        featuringBody = await Musician.find({ "_id": { $in: featuringIds } })
+    }
+
     song.name = name
     song.artist = artist
-    song.album = album
+    song.album = (album) ? album : song.album
     song.genre = genre
-    song.url = url
+    song.url = (url) ? url : song.url
     song.type = type
-    song.dateUploaded = dateUploaded
-    song.likes = likes
-    song.isSingleTrack = isSingleTrack
+    song.dateUploaded = (dateUploaded) ? dateUploaded : song.dateUploaded
+    song.likes = (likes) ? likes : song.likes
+    song.isSingleTrack = (isSingleTrack) ? isSingleTrack : song.isSingleTrack
+    song.featuring = (featuringBody.length === 0) ? song.featuring : featuringBody
 
     song = await song.save()
     res.send(song)

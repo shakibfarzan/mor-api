@@ -34,9 +34,9 @@ const Artist = mongoose.model('Artist', artistSchema);
 
 function validateArtist(artist) {
     const schema = Joi.object({
-        name: Joi.string().min(2).max(255),
+        name: Joi.string().min(2).max(255).required(),
         epithet: Joi.string().max(50),
-        biography: Joi.string(),
+        biography: Joi.string().required(),
         line_up: Joi.array().items(Joi.objectId().required()),
         personal_influences: Joi.string(),
         essential_stylistic_features: Joi.string(),
