@@ -23,6 +23,7 @@ const artists = require('./routes/artists')
 const albums = require('./routes/albums')
 const songs = require('./routes/songs')
 const users = require('./routes/users')
+const favorites = require('./routes/favorites')
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -39,6 +40,7 @@ app.use('/api/artists', artists)
 app.use('/api/albums', albums)
 app.use('/api/songs', songs)
 app.use('/api/users', users)
+app.use('/api/favorites', favorites)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

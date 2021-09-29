@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const _ = require('lodash')
 const { User, validate } = require("../models/user");
 const { Person } = require("../models/person")
+const { Favorite } = require('../models/favorite')
 const fileIO = require("../utils/fileIO")
 const fileValidator = require("../utils/fileValidator")
 
@@ -17,6 +18,11 @@ router.get("/me", auth, async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
   res.send(user);
 });
+
+router.get("/myFavoriteSongs", auth, async (req, res) => {
+  const favoriteSongs = await Favorite.find({ "user._id": req.user._id }).select("song")
+  res.send(favoriteSongs);
+})
 
 router.post("/", validateMiddleWare(validate), async (req, res) => {
 
