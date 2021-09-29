@@ -9,6 +9,7 @@ const auth = require('../middlewares/auth')
 const admin = require('../middlewares/admin')
 const validateObjectId = require('../middlewares/validateObjectId')
 const validateMiddleWare = require('../middlewares/validateMiddleWare')
+const arrayBodyMiddleWare = require('../middlewares/arrayBodyMiddleWare')
 
 router.get('/', async (req, res) => {
     const musicians = await Musician.find().sort('name.lastname name.firstname')
@@ -23,7 +24,7 @@ router.get('/:id', validateObjectId, async (req, res) => {
     res.send(musician)
 })
 
-router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) => {
+router.post('/', [auth, admin, arrayBodyMiddleWare("instruments"), validateMiddleWare(validate)], async (req, res) => {
     const name = await Person.findById(req.body.nameId)
     if (!name) return res.status(400).send('Invalid name!')
 

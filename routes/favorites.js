@@ -1,19 +1,21 @@
 const express = require('express');
 const router = express.Router()
 const { Song } = require('../models/song')
+const { User } = require('../models/user')
 const { Favorite, validate } = require('../models/favorite')
 const auth = require('../middlewares/auth')
 const validateObjectId = require('../middlewares/validateObjectId')
 const validateMiddleWare = require('../middlewares/validateMiddleWare')
 
+
 router.post('/', [auth, validateMiddleWare(validate)], async (req, res) => {
 
-    const song = await Song.findById(req.body.songId)
+    const user = await User.findById(req.user._id).select("name username");
+
+    const song = await Song.findById(req.body.songId);
     if (!song) return res.status(400).send("Invalid song ID!")
 
-    const user = await User.findById(req.user._id).select("name username")
-
-    const favorite = new Favorite({ song, user })
+    const favorite = new Favorite({ user, song })
 
     await favorite.save()
 
@@ -22,7 +24,7 @@ router.post('/', [auth, validateMiddleWare(validate)], async (req, res) => {
 
 router.delete('/:id', [auth, validateObjectId], async (req, res) => {
 
-    const favorite = await Favorite.findByIdAndDelete(req.params.id);
+    const favorite = await Favorite.findOneAndDelete({ "song._id": req.params.id, "user._id": req.user._id })
     if (!favorite) return res.status(400).send("Invalid ID!")
 
     res.send(favorite)

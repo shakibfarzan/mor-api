@@ -9,9 +9,9 @@ const auth = require('../middlewares/auth')
 const admin = require('../middlewares/admin')
 const validateObjectId = require('../middlewares/validateObjectId')
 const validateMiddleWare = require('../middlewares/validateMiddleWare')
+const arrayBodyMiddleWare = require('../middlewares/arrayBodyMiddleWare')
 const fileIO = require('../utils/fileIO')
 const fileValidator = require('../utils/fileValidator')
-const config = require('config');
 
 const dest = 'public/images/artists/'
 const dbPath = 'images/artists'
@@ -41,7 +41,7 @@ router.get('/discography/:id', validateObjectId, async (req, res) => {
     res.send(discography)
 })
 
-router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) => {
+router.post('/', [auth, admin, arrayBodyMiddleWare("line_up"), validateMiddleWare(validate)], async (req, res) => {
 
     const errors = fileValidator(req.files.images, { maxCount: 2, minSize: 20000, maxSize: 1024 * 1024, mimeTypes: ['image/png', 'image/jpeg'], required: true })
 

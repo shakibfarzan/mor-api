@@ -17,7 +17,6 @@ const favoriteSchema = new mongoose.Schema({
                 maxlength: 30,
                 lowercase: true,
                 required: true,
-                unique: true
             },
         }),
         required: true
@@ -28,8 +27,7 @@ const favoriteSchema = new mongoose.Schema({
     }
 })
 
-const Favorite = mongoose.model('Favorite', songSchema);
-
+const Favorite = mongoose.model('Favorite', favoriteSchema);
 function validateFavorite(favoriteObj) {
     const schema = Joi.object({
         songId: Joi.objectId().required()
