@@ -6,23 +6,17 @@ const bcrypt = require("bcrypt");
 const _ = require('lodash')
 const { User, validate } = require("../models/user");
 const { Person } = require("../models/person")
-const { Favorite } = require('../models/favorite')
 const fileIO = require("../utils/fileIO")
 const fileValidator = require("../utils/fileValidator")
 
-const dest = "public/images/avatars"
-const dbPath = "images/avatars"
+const dest = "public/images/avatars/"
+const dbPath = "images/avatars/"
 
 
 router.get("/me", auth, async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
   res.send(user);
 });
-
-router.get("/myFavoriteSongs", auth, async (req, res) => {
-  const favoriteSongs = await Favorite.find({ "user._id": req.user._id }).select("song")
-  res.send(favoriteSongs);
-})
 
 router.post("/", validateMiddleWare(validate), async (req, res) => {
 
@@ -84,8 +78,6 @@ router.put("/me", auth, async (req, res) => {
     avatar = fileIO.save(req.files.avatar, dest, dbPath)
   }
 
-  avatar = (avatar.length === 0) ? '' : avatar.pop()
-
   if (password !== currentUser.password) {
     const salt = await bcrypt.genSalt(10);
     password = await bcrypt.hash(password, salt);
@@ -95,7 +87,7 @@ router.put("/me", auth, async (req, res) => {
   currentUser.username = username
   currentUser.email = email
   currentUser.password = password
-  currentUser.avatar = avatar
+  currentUser.avatar = avatar.pop()
 
   await currentUser.save()
 

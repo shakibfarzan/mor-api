@@ -25,26 +25,26 @@ const suggestionSchema = new mongoose.Schema({
         maxlength: 255,
         required: true
     },
-    link: {
-        type: String,
-    },
     description: {
         type: String,
+        required: true,
+        maxlength: 2048
     },
-    content: {
-        type: String
-    }
+    contents: [String],
+    links: [String],
+    dateUploaded: {
+        type: Date,
+        default: Date.now
+    },
 })
 
 const Suggestion = mongoose.model('Suggestion', suggestionSchema);
 
 function validateSuggestion(suggestion) {
     const schema = Joi.object({
-        userId: Joi.objectId().required(),
         artistName: Joi.string().min(2).max(255).required(),
-        link: Joi.string(),
-        description: Joi.string(),
-        content: Joi.string()
+        description: Joi.string().max(2048).required(),
+        links: Joi.array().items(Joi.string())
     })
     return schema.validate(suggestion)
 }

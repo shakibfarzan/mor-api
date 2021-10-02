@@ -36,6 +36,7 @@ router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) =
     const errors = fileValidator(file, { maxCount: 1, maxSize: 1024 * 1024 * 50, mimeTypes: ['audio/mpeg'], required: true })
     if (errors.length !== 0) return res.status(400).send(errors)
 
+    fileIO.createDir(dest)
     const url = fileIO.save(file, dest, dbPath).pop()
 
     const { name, type, dateUploaded, likes, artistId, albumId, genreId, isSingleTrack, featuring } = req.body
@@ -100,14 +101,14 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
 
     song.name = name
     song.artist = artist
-    song.album = (album) ? album : song.album
+    song.album = album
     song.genre = genre
-    song.url = (url) ? url : song.url
+    song.url = url
     song.type = type
     song.dateUploaded = (dateUploaded) ? dateUploaded : song.dateUploaded
-    song.likes = (likes) ? likes : song.likes
-    song.isSingleTrack = (isSingleTrack) ? isSingleTrack : song.isSingleTrack
-    song.featuring = (featuringBody.length === 0) ? song.featuring : featuringBody
+    song.likes = likes
+    song.isSingleTrack = isSingleTrack
+    song.featuring = featuringBody
 
     song = await song.save()
     res.send(song)

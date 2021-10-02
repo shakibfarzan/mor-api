@@ -43,6 +43,7 @@ router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) =
     let cover = ''
 
     if (coverFile) {
+        fileIO.createDir(dest)
         cover = fileIO.save(coverFile, dest, dbPath).pop()
     }
 
@@ -75,10 +76,10 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     const artist = await Artist.findById(req.body.artistId).select('name')
     if (!artist) return res.status(400).send("Invalid artist ID!")
 
-    album.name = (req.body.name) ? req.body.name : album.name
+    album.name = req.body.name
     album.artist = artist
     album.year = req.body.year
-    album.cover = (cover) ? cover : album.cover
+    album.cover = cover
 
     album = await album.save()
 

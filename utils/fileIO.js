@@ -28,6 +28,11 @@ module.exports = {
         } catch (err) {
             console.log(err)
         }
+    },
+    createDir: function (dir) {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
     }
 
 }

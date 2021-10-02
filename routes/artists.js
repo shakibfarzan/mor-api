@@ -55,6 +55,7 @@ router.post('/', [auth, admin, arrayBodyMiddleWare("line_up"), validateMiddleWar
         if (line_up.length === 0) return res.status(400).send('Invalid musicians Id!')
     }
 
+    fileIO.createDir(dest)
     const images = fileIO.save(req.files.images, dest, dbPath)
 
     const { name, epithet, biography, personal_influences, essential_stylistic_features, harmonic_material, sound } = req.body
@@ -86,14 +87,14 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     const { name, epithet, biography, personal_influences, essential_stylistic_features, harmonic_material, sound } = req.body
 
     artist.name = name;
-    artist.epithet = (epithet) ? epithet : artist.epithet;
+    artist.epithet = epithet
     artist.biography = biography;
-    artist.personal_influences = (personal_influences) ? personal_influences : artist.personal_influences;
-    artist.essential_stylistic_features = (essential_stylistic_features) ? essential_stylistic_features : artist.essential_stylistic_features;
-    artist.harmonic_material = (harmonic_material) ? harmonic_material : artist.harmonic_material;
-    artist.sound = (sound) ? sound : artist.sound;
+    artist.personal_influences = personal_influences
+    artist.essential_stylistic_features = essential_stylistic_features
+    artist.harmonic_material = harmonic_material
+    artist.sound = sound
     artist.images = images;
-    artist.line_up = (line_up.length === 0) ? artist.line_up : line_up;
+    artist.line_up = line_up;
 
     artist = await artist.save()
 

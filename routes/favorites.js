@@ -7,6 +7,10 @@ const auth = require('../middlewares/auth')
 const validateObjectId = require('../middlewares/validateObjectId')
 const validateMiddleWare = require('../middlewares/validateMiddleWare')
 
+router.get("/myFavoriteSongs", auth, async (req, res) => {
+    const favoriteSongs = await Favorite.find({ "user._id": req.user._id }).select("song")
+    res.send(favoriteSongs);
+})
 
 router.post('/', [auth, validateMiddleWare(validate)], async (req, res) => {
 
