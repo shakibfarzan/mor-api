@@ -43,7 +43,7 @@ router.get('/discography/:id', validateObjectId, async (req, res) => {
 
 router.post('/', [auth, admin, arrayBodyMiddleWare("line_up"), validateMiddleWare(validate)], async (req, res) => {
 
-    const errors = fileValidator(req.files.images, { maxCount: 2, minSize: 20000, maxSize: 1024 * 1024, mimeTypes: ['image/png', 'image/jpeg'], required: true })
+    const errors = fileValidator(req.files.images, { maxCount: 2, minSize: 20000, maxSize: 1024 * 1024, mimeTypes: ['image/png', 'image/jpeg', 'image/webp'], required: true })
 
     if (errors.length !== 0) return res.status(400).send(errors)
 
@@ -69,7 +69,7 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     let artist = await Artist.findById(req.params.id)
     if (!artist) return res.status(404).send("Artist Not Found")
 
-    const errors = fileValidator(req.files.images, { maxCount: 2, minSize: 20000, maxSize: 1024 * 1024, mimeTypes: ['image/png', 'image/jpeg'], required: true })
+    const errors = fileValidator(req.files.images, { maxCount: 2, minSize: 20000, maxSize: 1024 * 1024, mimeTypes: ['image/png', 'image/jpeg', 'image/webp'], required: true })
     if (errors.length !== 0) return res.status(400).send(errors)
 
     fileIO.delete(artist.images, 'public/')

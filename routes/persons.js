@@ -20,13 +20,13 @@ router.get('/:id', validateObjectId, async (req, res) => {
     res.send(person)
 })
 
-router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) => {
+router.post('/', [validateMiddleWare(validate)], async (req, res) => {
     let person = new Person({ firstname: req.body.firstname, lastname: req.body.lastname, nickname: req.body.nickname })
     person = await person.save()
     res.send(person)
 })
 
-router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)], async (req, res) => {
+router.put('/:id', [validateObjectId, auth, validateMiddleWare(validate)], async (req, res) => {
     const person = await Person.findByIdAndUpdate(req.params.id, { firstname: req.body.firstname, lastname: req.body.lastname, nickname: req.body.nickname }, { new: true })
 
     if (!person) return res.status(404).send("Person Not Found")

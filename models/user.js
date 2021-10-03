@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
         minlength: 5,
         maxlength: 255,
         required: true,
-
+        lowercase: true
     },
     username: {
         type: String,
@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
     isAdmin: {
+        type: Boolean,
+        default: false
+    },
+    isActive: {
         type: Boolean,
         default: false
     },

@@ -1,5 +1,4 @@
 {
-    "db": "mongodb://localhost/masters-of-rock",
     "jwtPrivateKey": "unSecureKey",
     "requiresAuth": true
 }

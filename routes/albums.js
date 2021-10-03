@@ -37,7 +37,7 @@ router.post('/', [auth, admin, validateMiddleWare(validate)], async (req, res) =
 
     const coverFile = req.files.cover
 
-    const errors = fileValidator(coverFile, { maxCount: 1, minSize: 15000, maxSize: 1024 * 1024, mimeTypes: ['image/png', 'image/jpeg'] })
+    const errors = fileValidator(coverFile, { maxCount: 1, minSize: 15000, maxSize: 1024 * 1024, mimeTypes: ['image/png', 'image/jpeg', 'image/webp'] })
     if (errors.length !== 0) return res.status(400).send(errors)
 
     let cover = ''
@@ -60,7 +60,7 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     let album = await Album.findById(req.params.id)
     if (!album) return res.status(404).send("Album Not Found")
 
-    const errors = fileValidator(req.files.cover, { maxCount: 1, minSize: 15000, maxSize: 1024 * 1024, mimeTypes: ['image/png', 'image/jpeg'] })
+    const errors = fileValidator(req.files.cover, { maxCount: 1, minSize: 15000, maxSize: 1024 * 1024, mimeTypes: ['image/png', 'image/jpeg', 'image/webp'] })
     if (errors.length !== 0) return res.status(400).send(errors)
 
     fileIO.delete(album.cover, 'public/')

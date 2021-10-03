@@ -30,7 +30,7 @@ router.post('/', [auth, arrayBodyMiddleWare("links"), validateMiddleWare(validat
 
     const contentFiles = req.files.contents
 
-    const errors = fileValidator(contentFiles, { maxCount: 2, maxSize: 1024 * 1024 * 50, mimeTypes: ['image/jpeg', 'image/png', 'audio/mpeg', 'video/mp4'] })
+    const errors = fileValidator(contentFiles, { maxCount: 2, maxSize: 1024 * 1024 * 50, mimeTypes: ['image/jpeg', 'image/png', 'audio/mpeg', 'video/mp4', 'image/webp'] })
     if (errors.length !== 0) return res.status(400).send(errors)
 
     let contents = []
@@ -53,6 +53,9 @@ router.put('/mySuggestions/:id', [auth, validateObjectId], async (req, res) => {
 
     const suggestion = await Suggestion.findOne({ "_id": req.params.id, "user._id": req.user._id })
     if (!suggestion) return res.status(404).send("Suggestion not found!")
+
+    const errors = fileValidator(req.files.contents, { maxCount: 2, maxSize: 1024 * 1024 * 50, mimeTypes: ['image/jpeg', 'image/png', 'audio/mpeg', 'video/mp4', 'image/webp'] })
+    if (errors.length !== 0) return res.status(400).send(errors)
 
     fileIO.delete(suggestion.contents, 'public/')
     const contents = fileIO.save(req.files.contents, dest, dbPath)

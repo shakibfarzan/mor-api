@@ -8,6 +8,7 @@ const { User, validate } = require("../models/user");
 const { Person } = require("../models/person")
 const fileIO = require("../utils/fileIO")
 const fileValidator = require("../utils/fileValidator")
+const sendMail = require("../utils/sendMail")
 
 const dest = "public/images/avatars/"
 const dbPath = "images/avatars/"
@@ -32,8 +33,8 @@ router.post("/", validateMiddleWare(validate), async (req, res) => {
   if (!name) return res.status(400).send("Invalid name ID!")
 
   let avatar = []
-  if (req.files.avatar) {
-    const errors = fileValidator(req.files.avatar, { maxCount: 1, maxSize: 1024 * 1024, mimeTypes: ['image/jpeg', 'image/png'] })
+  if (req.files) {
+    const errors = fileValidator(req.files.avatar, { maxCount: 1, maxSize: 1024 * 1024, mimeTypes: ['image/jpeg', 'image/png', 'image/webp'] })
     if (errors.length !== 0) return res.status(400).send(errors)
     avatar = fileIO.save(req.files.avatar, dest, dbPath)
   }
@@ -45,10 +46,10 @@ router.post("/", validateMiddleWare(validate), async (req, res) => {
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
 
-  const token = user.generateAuthToken();
-  res
-    .header("token", token)
-    .send(_.pick(user, ["_id", "name", "username", "email"]));
+  sendMail(email, "Email confirmation!",
+    `Press <a href="http://${process.env.DOMAIN}/api/verify/${user._id}">here</a> to verify your email.
+    Thanks.`)
+  res.send(_.pick(user, ["_id", "name", "username", "email"]));
 });
 
 router.put("/me", auth, async (req, res) => {
@@ -57,10 +58,12 @@ router.put("/me", auth, async (req, res) => {
   const currentUser = await User.findById(req.user._id)
 
   let user = null;
+  let verification = false;
 
   if (email !== currentUser.email) {
     user = await User.findOne({ email });
     if (user) return res.status(400).send("Email is unavailable!");
+    verification = true;
   }
 
   if (username !== currentUser.username) {
@@ -70,6 +73,9 @@ router.put("/me", auth, async (req, res) => {
 
   const name = await Person.findById(nameId);
   if (!name) return res.status(400).send("Invalid name ID!")
+
+  const errors = fileValidator(req.files.avatar, { maxCount: 1, maxSize: 1024 * 1024, mimeTypes: ['image/jpeg', 'image/png', 'image/webp'] })
+  if (errors.length !== 0) return res.status(400).send(errors)
 
   fileIO.delete(currentUser.avatar, 'public/')
 
@@ -91,9 +97,18 @@ router.put("/me", auth, async (req, res) => {
 
   await currentUser.save()
 
-  const token = currentUser.generateAuthToken();
+  if (verification) {
+    currentUser.isActive = false
+    sendMail(email, "Email confirmation!",
+      `Press <a href="http://${process.env.DOMAIN}/api/verify/${user._id}">here</a> to verify your email.
+    Thanks.`)
+    res.send(_.pick(user, ["_id", "name", "username", "email"]));
+  } else {
+    const token = currentUser.generateAuthToken();
+    res.send(token)
+  }
 
-  res.send(token)
+
 })
 
 router.delete("/me", auth, async (req, res) => {
