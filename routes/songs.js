@@ -114,6 +114,17 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     res.send(song)
 })
 
+router.put('/likes/:id', [validateObjectId, auth], async (req, res) => {
+    let song = await Song.findById(req.params.id);
+
+    if (!song) return res.status(404).send("Song Not Found");
+
+    song.likes = req.body.likes;
+
+    song = await song.save()
+    res.send(song)
+})
+
 router.delete('/:id', [validateObjectId, auth, admin], async (req, res) => {
     const song = await Song.findByIdAndDelete(req.params.id);
 
