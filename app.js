@@ -28,6 +28,7 @@ const favorites = require('./routes/favorites')
 const auth = require('./routes/auth')
 const comments = require('./routes/comments')
 const suggestions = require('./routes/suggestions')
+const experiences = require('./routes/experiences');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -48,6 +49,7 @@ app.use('/api/users', users)
 app.use('/api/favorites', favorites)
 app.use('/api/comments', comments)
 app.use('/api/suggestions', suggestions);
+app.use('/api/experiences', experiences)
 app.use('/api/auth', auth)
 
 // catch 404 and forward to error handler

@@ -15,13 +15,13 @@ const dbPath = 'contents/'
 
 router.get('/', [auth, admin], async (req, res) => {
 
-    const suggestions = await Suggestion.find().sort("dateUploaded")
+    const suggestions = await Suggestion.find().sort("-dateUploaded")
     res.send(suggestions)
 })
 
 router.get('/mySuggestions', auth, async (req, res) => {
 
-    const suggestions = await Suggestion.find({ "user._id": req.user._id }).sort("dateUploaded")
+    const suggestions = await Suggestion.find({ "user._id": req.user._id }).sort("-dateUploaded")
     res.send(suggestions)
 })
 
@@ -49,7 +49,7 @@ router.post('/', [auth, arrayBodyMiddleWare("links"), validateMiddleWare(validat
 
 })
 
-router.put('/mySuggestions/:id', [auth, validateObjectId], async (req, res) => {
+router.put('/mySuggestions/:id', [auth, validateObjectId, validateMiddleWare(validate)], async (req, res) => {
 
     const suggestion = await Suggestion.findOne({ "_id": req.params.id, "user._id": req.user._id })
     if (!suggestion) return res.status(404).send("Suggestion not found!")
@@ -69,6 +69,19 @@ router.put('/mySuggestions/:id', [auth, validateObjectId], async (req, res) => {
 
     res.send(suggestion)
 })
+
+router.delete('/:id', [auth, admin, validateObjectId], async (req, res) => {
+
+    const suggestion = await Suggestion.findById(req.params.id);
+    if (!suggestion) return res.status(404).send("Suggestion not found!");
+
+    suggestion.isDisplaying = false;
+
+    await suggestion.save();
+
+    res.send(suggestion);
+})
+
 
 router.delete('/mySuggestions/:id', [auth, validateObjectId], async (req, res) => {
 

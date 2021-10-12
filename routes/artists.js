@@ -33,7 +33,7 @@ router.get('/discography/:id', validateObjectId, async (req, res) => {
     const discography = { albums: [], single_tracks: [] }
 
     const single_tracks = await Song.find({ "artist._id": req.params.id, isSingleTrack: true })
-    const albums = await Album.find({ "artist._id": req.params.id }).select('-artist')
+    const albums = await Album.find({ "artist._id": req.params.id, name: { $ne: "Single Track" } }).select('-artist')
 
     discography.albums = albums
     discography.single_tracks = single_tracks

@@ -4,6 +4,7 @@ const { User } = require('../models/user');
 const express = require('express');
 const router = express.Router();
 const validateMiddleWare = require("../middlewares/validateMiddleWare")
+const config = require('config');
 
 
 router.get('/verify/:id', async (req, res) => {
@@ -27,7 +28,9 @@ router.post('/', validateMiddleWare(validate), async (req, res) => {
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     if (!validPassword) return res.status(400).send('Invalid username or password.');
 
-    if (!user.isActive) return res.status(401).send('Access denied. Your account is not active.')
+    if (config.get("requiresVerification")) {
+        if (!user.isActive) return res.status(401).send('Access denied. Your account is not active.')
+    }
 
     const token = user.generateAuthToken();
     res.send(token);

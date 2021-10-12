@@ -9,6 +9,7 @@ const { Person } = require("../models/person")
 const fileIO = require("../utils/fileIO")
 const fileValidator = require("../utils/fileValidator")
 const sendMail = require("../utils/sendMail")
+const config = require('config');
 
 const dest = "public/images/avatars/"
 const dbPath = "images/avatars/"
@@ -46,10 +47,16 @@ router.post("/", validateMiddleWare(validate), async (req, res) => {
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
 
-  sendMail(email, "Email confirmation!",
-    `Press <a href="http://${process.env.DOMAIN}/api/verify/${user._id}">here</a> to verify your email.
+  if (config.get("requiresVerification")) {
+    sendMail(email, "Email confirmation!",
+      `Press <a href="http://${process.env.DOMAIN}/api/verify/${user._id}">here</a> to verify your email.
     Thanks.`)
-  res.send(_.pick(user, ["_id", "name", "username", "email"]));
+    res.send(_.pick(user, ["_id", "name", "username", "email"]));
+  } else {
+    const token = user.generateAuthToken()
+    res.header("token", token).send(_.pick(user, ["_id", "name", "username", "email"]))
+  }
+
 });
 
 router.put("/me", auth, async (req, res) => {
@@ -97,7 +104,7 @@ router.put("/me", auth, async (req, res) => {
 
   await currentUser.save()
 
-  if (verification) {
+  if (config.get("requiresVerification") && verification) {
     currentUser.isActive = false
     sendMail(email, "Email confirmation!",
       `Press <a href="http://${process.env.DOMAIN}/api/verify/${user._id}">here</a> to verify your email.

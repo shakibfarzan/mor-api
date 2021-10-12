@@ -1,4 +1,5 @@
 {
     "jwtPrivateKey": "unSecureKey",
-    "requiresAuth": true
+    "requiresAuth": true,
+    "requiresVerification": false
 }
