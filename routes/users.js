@@ -118,6 +118,26 @@ router.put("/me", auth, async (req, res) => {
 
 })
 
+router.put("/changeAvatar", auth, async (req, res) => {
+  const currentUser = await User.findById(req.user._id)
+
+  const errors = fileValidator(req.files.avatar, { maxCount: 1, maxSize: 1024 * 1024, mimeTypes: ['image/jpeg', 'image/png', 'image/webp'] })
+  if (errors.length !== 0) return res.status(400).send(errors)
+
+  fileIO.delete(currentUser.avatar, 'public/')
+
+  let avatar = []
+  if (req.files.avatar) {
+    avatar = fileIO.save(req.files.avatar, dest, dbPath)
+  }
+  currentUser.avatar = avatar.pop()
+
+  await currentUser.save()
+
+  res.send(currentUser);
+
+})
+
 router.delete("/me", auth, async (req, res) => {
 
   const user = await User.findByIdAndDelete(req.user._id)

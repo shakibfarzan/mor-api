@@ -16,7 +16,8 @@ const commentSchema = new mongoose.Schema({
                 maxlength: 30,
                 lowercase: true,
                 required: true
-            }
+            },
+            avatar: String
         }),
         required: true
     },
