@@ -6,6 +6,10 @@ const bcrypt = require("bcrypt");
 const _ = require('lodash')
 const { User, validate } = require("../models/user");
 const { Person } = require("../models/person")
+const { Comment } = require('../models/comment')
+const { Experience } = require('../models/experience')
+const { Favorite } = require('../models/favorite');
+const { Suggestion } = require('../models/suggestion');
 const fileIO = require("../utils/fileIO")
 const fileValidator = require("../utils/fileValidator")
 const sendMail = require("../utils/sendMail")
@@ -104,6 +108,30 @@ router.put("/me", auth, async (req, res) => {
 
   await currentUser.save()
 
+  const comments = await Comment.find({ "user._id": currentUser._id })
+  comments.forEach((comment) => {
+    comment.user = user;
+    await comment.save();
+  })
+
+  const experiences = await Experience.find({ "user._id": currentUser._id })
+  experiences.forEach((ex) => {
+    ex.user = user;
+    await ex.save();
+  })
+
+  const favorites = await Favorite.find({ "user._id": currentUser._id })
+  favorites.forEach((fav) => {
+    fav.user = user;
+    await fav.save();
+  })
+
+  const suggestions = await Suggestion.find({ "user._id": currentUser._id })
+  suggestions.forEach((sug) => {
+    sug.user = user;
+    await sug.save();
+  })
+
   if (config.get("requiresVerification") && verification) {
     currentUser.isActive = false
     sendMail(email, "Email confirmation!",
@@ -134,6 +162,12 @@ router.put("/changeAvatar", auth, async (req, res) => {
 
   await currentUser.save()
 
+  const comments = await Comment.find({ "user._id": currentUser._id })
+  comments.forEach((comment) => {
+    comment.user.avatar = currentUser.avatar;
+    await comment.save()
+  })
+
   res.send(currentUser);
 
 })
@@ -143,6 +177,14 @@ router.delete("/me", auth, async (req, res) => {
   const user = await User.findByIdAndDelete(req.user._id)
 
   fileIO.delete(user.avatar, 'public/')
+
+  await Comment.deleteMany({ "user._id": user._id });
+
+  await Experience.deleteMany({ "user._id": user._id });
+
+  await Favorite.deleteMany({ "user._id": user._id });
+
+  await Suggestion.deleteMany({ "user._id": user._id });
 
   res.send(user)
 })

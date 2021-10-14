@@ -5,6 +5,7 @@ const { Artist, validate } = require('../models/artist');
 const { Musician } = require('../models/musician');
 const { Song } = require('../models/song')
 const { Album } = require('../models/album')
+const { Favorite } = require('../models/favorite');
 const auth = require('../middlewares/auth')
 const admin = require('../middlewares/admin')
 const validateObjectId = require('../middlewares/validateObjectId')
@@ -97,6 +98,27 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     artist.line_up = line_up;
 
     artist = await artist.save()
+
+    const albums = await Album.find({ "artist._id": artist._id });
+    if (albums.length !== 0) {
+        albums.forEach(album => {
+            album.artist.name = artist.name;
+            await album.save();
+        })
+    }
+
+
+    // Update artist of songs
+    const songs = await Song.find({ "artist._id": artist._id });
+    songs.forEach(song => {
+        song.artist.name = artist.name;
+        await song.save();
+        const favorites = await Favorite.find({ "song._id": song._id });
+        favorites.forEach(favorite => {
+            favorite.song.artist.name = artist.name;
+            await favorite.save();
+        })
+    })
 
     res.send(artist)
 })

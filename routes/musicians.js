@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const { Musician, validate } = require('../models/musician')
 const { Person } = require('../models/person')
 const { Instrument } = require('../models/instrument')
+const { Artist } = require('../models/artist')
+const { Song } = require('../models/song');
 
 const auth = require('../middlewares/auth')
 const admin = require('../middlewares/admin')
@@ -52,8 +54,34 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     const instruments = await Instrument.find({ '_id': { $in: instrumentsBody } })
     if (instruments.length === 0) return res.status(400).send('Invalid instruments Id!')
 
-    const musician = await Musician.findByIdAndUpdate(req.params.id, { name, instruments }, { new: true })
+    let musician = await Musician.findById(req.params.id)
     if (!musician) return res.status(404).send("Musician Not Found")
+
+    const prevMusician = musician
+    musician.instruments = instruments;
+    musician.name = name;
+
+    musician = await musician.save();
+
+    const artists = await Artist.find({ line_up: prevMusician })
+    artists.forEach(artist => {
+        artist.line_up.forEach(m => {
+            if (m._id === musician._id) {
+                m = musician;
+            }
+        })
+        await artist.save();
+    })
+
+    const songs = await Song.find({ featuring: prevMusician })
+    songs.forEach(song => {
+        song.featuring.forEach(m => {
+            if (m._id === musician._id) {
+                m = musician;
+            }
+        })
+        await song.save();
+    })
 
     res.send(musician)
 })
@@ -62,6 +90,20 @@ router.delete('/:id', [validateObjectId, auth, admin], async (req, res) => {
     const musician = await Musician.findByIdAndDelete(req.params.id);
 
     if (!musician) return res.status(404).send("Musician Not Found")
+
+    const artists = await Artist.find({ line_up: musician })
+    artists.forEach(artist => {
+        const removed = artist.line_up.filter(m => m._id !== musician._id);
+        artist.line_up = { ...removed };
+        await artist.save();
+    })
+
+    const songs = await Song.find({ featuring: musician })
+    songs.forEach(song => {
+        const removed = song.featuring.filter(m => m._id !== musician._id);
+        song.line_up = { ...removed };
+        await song.save();
+    })
 
     res.send(musician)
 })

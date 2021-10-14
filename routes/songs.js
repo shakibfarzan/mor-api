@@ -6,6 +6,8 @@ const { Artist } = require('../models/artist');
 const { Album } = require('../models/album')
 const { Genre } = require('../models/genre')
 const { Musician } = require('../models/musician')
+const { Comment } = require('../models/comment')
+const { Favorite } = require('../models/favorite')
 const auth = require('../middlewares/auth')
 const admin = require('../middlewares/admin')
 const validateObjectId = require('../middlewares/validateObjectId')
@@ -111,6 +113,19 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     song.featuring = featuringBody
 
     song = await song.save()
+
+    const comments = await Comment.find({ "song._id": song._id });
+    comments.forEach((comment) => {
+        comment.song.name = song.name;
+        await comment.save()
+    })
+
+    const favorites = await Favorite.find({ "song._id": song._id })
+    favorites.forEach(favorite => {
+        favorite.song = song;
+        await favorite.save();
+    })
+
     res.send(song)
 })
 
@@ -122,6 +137,13 @@ router.put('/likes/:id', [validateObjectId, auth], async (req, res) => {
     song.likes = req.body.likes;
 
     song = await song.save()
+
+    const favorites = await Favorite.find({ "song._id": song._id })
+    favorites.forEach(favorite => {
+        favorite.song.likes = song.likes;
+        await favorite.save();
+    })
+
     res.send(song)
 })
 
@@ -131,6 +153,10 @@ router.delete('/:id', [validateObjectId, auth, admin], async (req, res) => {
     if (!song) return res.status(404).send("Song Not Found")
 
     fileIO.delete(song.url, 'public/')
+
+    await Comment.deleteMany({ "song._id": song._id });
+
+    await Favorite.deleteMany({ "song._id": song._id });
 
     res.send(song)
 })
