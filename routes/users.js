@@ -109,25 +109,25 @@ router.put("/me", auth, async (req, res) => {
   await currentUser.save()
 
   const comments = await Comment.find({ "user._id": currentUser._id })
-  comments.forEach((comment) => {
+  comments.forEach(async (comment) => {
     comment.user = user;
     await comment.save();
   })
 
   const experiences = await Experience.find({ "user._id": currentUser._id })
-  experiences.forEach((ex) => {
+  experiences.forEach(async (ex) => {
     ex.user = user;
     await ex.save();
   })
 
   const favorites = await Favorite.find({ "user._id": currentUser._id })
-  favorites.forEach((fav) => {
+  favorites.forEach(async (fav) => {
     fav.user = user;
     await fav.save();
   })
 
   const suggestions = await Suggestion.find({ "user._id": currentUser._id })
-  suggestions.forEach((sug) => {
+  suggestions.forEach(async (sug) => {
     sug.user = user;
     await sug.save();
   })
@@ -163,7 +163,7 @@ router.put("/changeAvatar", auth, async (req, res) => {
   await currentUser.save()
 
   const comments = await Comment.find({ "user._id": currentUser._id })
-  comments.forEach((comment) => {
+  comments.forEach(async (comment) => {
     comment.user.avatar = currentUser.avatar;
     await comment.save()
   })

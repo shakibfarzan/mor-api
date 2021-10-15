@@ -49,25 +49,25 @@ router.put('/:id', [validateObjectId, auth, validateMiddleWare(validate)], async
         await user.save();
 
         const comments = await Comment.find({ "user._id": user._id })
-        comments.forEach(comment => {
+        comments.forEach(async comment => {
             comment.user.name = person;
             await comment.save();
         })
 
         const experiences = await Experience.find({ "user._id": user._id })
-        experiences.forEach(ex => {
+        experiences.forEach(async ex => {
             ex.user.name = person;
             await ex.save();
         })
 
         const suggestions = await Suggestion.find({ "user._id": user._id });
-        suggestions.forEach(suggestion => {
+        suggestions.forEach(async suggestion => {
             suggestion.user.name = person;
             await suggestion.save();
         })
 
         const favorites = await Favorite.find({ "user._id": user._id });
-        favorites.forEach(favorite => {
+        favorites.forEach(async favorite => {
             favorite.user.name = person;
             await favorite.save();
         })
@@ -80,7 +80,7 @@ router.put('/:id', [validateObjectId, auth, validateMiddleWare(validate)], async
         await musician.save();
 
         const artists = await Artist.find({ line_up: prevMusician })
-        artists.forEach(artist => {
+        artists.forEach(async artist => {
             artist.line_up.forEach(m => {
                 if (m._id === musician._id) {
                     m = musician;
@@ -90,7 +90,7 @@ router.put('/:id', [validateObjectId, auth, validateMiddleWare(validate)], async
         })
 
         const songs = await Song.find({ featuring: prevMusician })
-        songs.forEach(song => {
+        songs.forEach(async song => {
             song.featuring.forEach(m => {
                 if (m._id === musician._id) {
                     m = musician;

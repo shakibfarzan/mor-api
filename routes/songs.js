@@ -115,13 +115,13 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     song = await song.save()
 
     const comments = await Comment.find({ "song._id": song._id });
-    comments.forEach((comment) => {
+    comments.forEach(async (comment) => {
         comment.song.name = song.name;
         await comment.save()
     })
 
     const favorites = await Favorite.find({ "song._id": song._id })
-    favorites.forEach(favorite => {
+    favorites.forEach(async favorite => {
         favorite.song = song;
         await favorite.save();
     })
@@ -139,7 +139,7 @@ router.put('/likes/:id', [validateObjectId, auth], async (req, res) => {
     song = await song.save()
 
     const favorites = await Favorite.find({ "song._id": song._id })
-    favorites.forEach(favorite => {
+    favorites.forEach(async favorite => {
         favorite.song.likes = song.likes;
         await favorite.save();
     })

@@ -86,7 +86,7 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     // Update songs of album
     const songs = await Song.find({ "album._id": album._id })
 
-    songs.forEach(song => {
+    songs.forEach(async song => {
         song.album.name = album.name;
         song.album.year = album.year;
         song.album.cover = album.cover;

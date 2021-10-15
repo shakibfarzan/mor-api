@@ -41,31 +41,28 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     //Update instruments of musicians
     const musicians = await Musician.find({ instruments: prevInstrument })
 
-    musicians.forEach(musician => {
+    musicians.forEach(async musician => {
         const prevMusician = musician;
         musician.instruments.forEach(i => {
             if (i._id === instrument._id) {
                 i.name = instrument.name
-                break;
             }
         })
         await musician.save();
         const artists = await Artist.find({ line_up: prevMusician })
-        artists.forEach(a => {
+        artists.forEach(async a => {
             a.line_up.forEach(m => {
                 if (m._id === musician._id) {
                     m.instruments = musician.instruments;
-                    break;
                 }
             })
             await a.save()
         })
         const songs = await Song.find({ featuring: prevMusician })
-        songs.forEach(song => {
+        songs.forEach(async song => {
             song.featuring.forEach(m => {
                 if (m._id === musician._id) {
                     m.instruments = musician.instruments;
-                    break;
                 }
             })
             await song.save()
@@ -82,28 +79,26 @@ router.delete('/:id', [validateObjectId, auth, admin], async (req, res) => {
 
     const musicians = await Musician.find({ instruments: instrument })
 
-    musicians.forEach(musician => {
+    musicians.forEach(async musician => {
         const prevMusician = musician
         const removed = musician.instruments.filter(i => i._id !== instrument._id);
         musician.instruments = { ...removed };
         await musician.save();
 
         const artists = await Artist.find({ line_up: prevMusician })
-        artists.forEach(a => {
+        artists.forEach(async a => {
             a.line_up.forEach(m => {
                 if (m._id === musician._id) {
                     m.instruments = musician.instruments;
-                    break;
                 }
             })
             await a.save();
         })
         const songs = await Song.find({ featuring: prevMusician })
-        songs.forEach(song => {
+        songs.forEach(async song => {
             song.featuring.forEach(m => {
                 if (m._id === musician._id) {
                     m.instruments = musician.instruments;
-                    break;
                 }
             })
             await song.save();

@@ -64,7 +64,7 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     musician = await musician.save();
 
     const artists = await Artist.find({ line_up: prevMusician })
-    artists.forEach(artist => {
+    artists.forEach(async artist => {
         artist.line_up.forEach(m => {
             if (m._id === musician._id) {
                 m = musician;
@@ -74,7 +74,7 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     })
 
     const songs = await Song.find({ featuring: prevMusician })
-    songs.forEach(song => {
+    songs.forEach(async song => {
         song.featuring.forEach(m => {
             if (m._id === musician._id) {
                 m = musician;
@@ -92,14 +92,14 @@ router.delete('/:id', [validateObjectId, auth, admin], async (req, res) => {
     if (!musician) return res.status(404).send("Musician Not Found")
 
     const artists = await Artist.find({ line_up: musician })
-    artists.forEach(artist => {
+    artists.forEach(async artist => {
         const removed = artist.line_up.filter(m => m._id !== musician._id);
         artist.line_up = { ...removed };
         await artist.save();
     })
 
     const songs = await Song.find({ featuring: musician })
-    songs.forEach(song => {
+    songs.forEach(async song => {
         const removed = song.featuring.filter(m => m._id !== musician._id);
         song.line_up = { ...removed };
         await song.save();

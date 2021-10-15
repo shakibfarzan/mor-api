@@ -101,7 +101,7 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
 
     const albums = await Album.find({ "artist._id": artist._id });
     if (albums.length !== 0) {
-        albums.forEach(album => {
+        albums.forEach(async album => {
             album.artist.name = artist.name;
             await album.save();
         })
@@ -110,11 +110,11 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
 
     // Update artist of songs
     const songs = await Song.find({ "artist._id": artist._id });
-    songs.forEach(song => {
+    songs.forEach(async song => {
         song.artist.name = artist.name;
         await song.save();
         const favorites = await Favorite.find({ "song._id": song._id });
-        favorites.forEach(favorite => {
+        favorites.forEach(async favorite => {
             favorite.song.artist.name = artist.name;
             await favorite.save();
         })

@@ -36,11 +36,11 @@ router.put('/:id', [validateObjectId, auth, admin, validateMiddleWare(validate)]
     // Update genre name of songs
     const songs = await Song.find({ "genre._id": genre._id });
 
-    songs.forEach((song) => {
+    songs.forEach(async (song) => {
         song.genre.name = genre.name
         await song.save();
         const favorites = await Favorite.find({ "song._id": song._id })
-        favorites.forEach(favorite => {
+        favorites.forEach(async favorite => {
             favorite.song.genre.name = genre.name;
             await favorite.save();
         })
