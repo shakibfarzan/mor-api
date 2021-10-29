@@ -21,7 +21,7 @@ router.get('/', [auth, admin], async (req, res) => {
 
 router.get('/mySuggestions', auth, async (req, res) => {
 
-    const suggestions = await Suggestion.find({ "user._id": req.user._id }).sort("-dateUploaded")
+    const suggestions = await Suggestion.find({ "user._id": req.user._id }).select("-user").sort("-dateUploaded")
     res.send(suggestions)
 })
 
